@@ -1,10 +1,10 @@
-# FastAPI, Tanstack Router + Query, and pnpm Example
+# Litestar, Tanstack Router + Query, and pnpm Example
 
-This project demonstrates a basic setup using FastAPI for the backend, and Tanstack Router + Query with pnpm for the frontend.
+This project demonstrates a basic setup using Litestar for the backend, and Tanstack Router + Query with pnpm for the frontend.
 
 ## Project Structure
 
-- `backend/`: Contains the FastAPI backend application.
+- `backend/`: Contains the Litestar backend application.
 - `frontend/`: Contains the frontend application built with Tanstack Router + Query.
 
 ## Prerequisites
@@ -15,7 +15,7 @@ This project demonstrates a basic setup using FastAPI for the backend, and Tanst
 ## How to Run
 
 1. **Start the Backend:**
-   Navigate to the `backend` directory and run the FastAPI application using `uv`:
+   Navigate to the `backend` directory and run the Litestar application using `uv`:
 
    ```bash
    cd backend
