@@ -11,22 +11,23 @@ function Todos() {
   const [newTodo, setNewTodo] = useState("");
 
   const addTodoMutation = useMutation({
-    mutationFn: (todo: string) =>
-      fetch("/api/todos", {
+    mutationFn: async (todo: string) => {
+      const res = await fetch("/api/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ id: Date.now(), title: todo, done: false }),
-      }).then((res) => {
-        if (!res.ok) {
-          return res.text().then((text) => {
-            throw new Error(`HTTP error! status: ${res.status}, body: ${text}`);
-          });
-        }
-        return res.json();
-      }),
-    onSuccess: (updateTodos) => {
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP error! status: ${res.status}, body: ${text}`);
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
       setNewTodo(""); // Clear input after successful mutation
     },
@@ -34,17 +35,17 @@ function Todos() {
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["todos"],
-    queryFn: () =>
-      fetch("/api/todos").then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      }),
+    queryFn: async () => {
+      const res = await fetch("/api/todos");
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    },
   });
 
   return (
     <div>
-      <h1>Todos</h1>
-      <p>This is the Todos page.</p>
+      <h1 className="text-3xl font-bold mb-3">Todos</h1>
+      <p className="text-gray-600">This is the Todos page.</p>
       {/* Display todos */}
       {isLoading && <p>Loading todos...</p>}
       {error && <p>Error loading todos: {(error as Error).message}</p>}

@@ -19,14 +19,14 @@ function Home() {
   });
 
   return (
-    <div className="App">
-      <header className="App-header">
+    <div>
+      <header className="flex min-h-screen flex-col items-center justify-center text-xl text-white">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/routes/index.tsx</code> and save to reload.
         </p>
         <a
-          className="App-link"
+          className="text-blue-500 transition-colors hover:text-blue-700"
           href="https://reactjs.org"
           target="_blank"
           rel="noopener noreferrer"
@@ -34,7 +34,7 @@ function Home() {
           Learn React
         </a>
         <a
-          className="App-link"
+          className="text-blue-500 transition-colors hover:text-blue-700"
           href="https://tanstack.com"
           target="_blank"
           rel="noopener noreferrer"
@@ -53,7 +53,12 @@ function Home() {
             ))}
           </ul>
         )}
-        <Link to="/todos">Go to Todos</Link>
+        <Link
+          to="/todos"
+          className="mt-4 rounded-2xl bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+        >
+          Go to Todos
+        </Link>
       </header>
     </div>
   );
