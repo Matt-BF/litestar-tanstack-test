@@ -4,6 +4,19 @@ import { useState } from "react";
 
 export const Route = createFileRoute({
   component: Todos,
+  loader: async () => {
+    const res = await fetch("/api/todos");
+    if (!res.ok) throw new Error("Network response was not ok");
+    return res.json() as Promise<
+      { id: number; title: string; done: boolean }[]
+    >;
+  },
+  errorComponent: ({ error }) => (
+    <div>
+      <h1 className="mb-3 text-3xl font-bold">Error</h1>
+      <p className="text-red-600">An error occurred: {error.message}</p>
+    </div>
+  ),
 });
 
 function Todos() {
@@ -44,7 +57,7 @@ function Todos() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-3">Todos</h1>
+      <h1 className="mb-3 text-3xl font-bold">Todos</h1>
       <p className="text-gray-600">This is the Todos page.</p>
       {/* Display todos */}
       {isLoading && <p>Loading todos...</p>}
