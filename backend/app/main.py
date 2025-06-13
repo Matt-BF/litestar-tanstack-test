@@ -1,20 +1,32 @@
 from litestar import Litestar, get, post
 from litestar.config.cors import CORSConfig
-from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 import uvicorn
+from dataclasses import dataclass
 
 load_dotenv()
 
 
-class Message(BaseModel):
-    message: str
+@dataclass
+class Todo:
+    id: int
+    title: str
+    done: bool
 
 
-@get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Hello from Litestar!"}
+@dataclass
+class User:
+    id: int
+    name: str
+    email: str
+
+
+TODO_LIST: list[Todo] = [
+    Todo(id=1, title="Buy groceries", done=False),
+    Todo(id=2, title="Walk the dog", done=True),
+    Todo(id=3, title="Read a book", done=False),
+]
 
 
 @get("/api/health")
@@ -23,18 +35,22 @@ async def health_check() -> dict[str, str]:
 
 
 @get("/api/users")
-async def get_users() -> dict[str, list[dict[str, any]]]:
-    return {
-        "users": [
-            {"id": 1, "name": "John Doe", "email": "john@example.com"},
-            {"id": 2, "name": "Jane Smith", "email": "jane@example.com"},
-        ]
-    }
+async def get_users() -> list[User]:
+    return [
+        User(id=1, name="John Doe", email="john@example.com"),
+        User(id=2, name="Jane Smith", email="jane@example.com"),
+    ]
 
 
-@post("/api/message")
-async def create_message(data: Message) -> dict[str, str]:
-    return {"received": data.message, "status": "success"}
+@get("/api/todos")
+async def get_todos() -> list[Todo]:
+    return TODO_LIST
+
+
+@post("/api/todos")
+async def add_todo(data: Todo) -> list[Todo]:
+    TODO_LIST.append(data)
+    return TODO_LIST
 
 
 cors_config = CORSConfig(
@@ -45,7 +61,7 @@ cors_config = CORSConfig(
 )
 
 app = Litestar(
-    route_handlers=[root, health_check, get_users, create_message],
+    route_handlers=[health_check, get_users, get_todos, add_todo],
     cors_config=cors_config,
 )
 

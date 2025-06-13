@@ -1,30 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import logo from "../logo.svg";
 import "../App.css";
 
-import {
-  useQuery,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
-const queryClient = new QueryClient();
-
-export const Route = createFileRoute("/")({
-  component: App,
+export const Route = createFileRoute({
+  component: Home,
 });
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Test />
-    </QueryClientProvider>
-  );
-}
-
-function Test() {
+function Home() {
   const { data, error, isLoading } = useQuery({
-    queryKey: [],
+    queryKey: ["users"],
     queryFn: () =>
       fetch("/api/users").then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
@@ -60,15 +46,14 @@ function Test() {
         {error && <p>Error loading users: {(error as Error).message}</p>}
         {data && (
           <ul>
-            {data.users.map(
-              (user: { id: number; name: string; email: string }) => (
-                <li key={user.id}>
-                  {user.name} ({user.email})
-                </li>
-              )
-            )}
+            {data.map((user: { id: number; name: string; email: string }) => (
+              <li key={user.id}>
+                {user.name} ({user.email})
+              </li>
+            ))}
           </ul>
         )}
+        <Link to="/todos">Go to Todos</Link>
       </header>
     </div>
   );
