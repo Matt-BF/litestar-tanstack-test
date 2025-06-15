@@ -15,13 +15,13 @@ function Home() {
   const data = Route.useLoaderData();
   return (
     <div>
-      <header className="flex min-h-screen flex-col items-center justify-center text-xl text-white">
+      <header className="flex min-h-screen flex-col items-center justify-center text-xl text-primary">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/routes/index.tsx</code> and save to reload.
         </p>
         <a
-          className="text-blue-500 transition-colors hover:text-blue-700"
+          className="transition-colors hover:text-blue-700"
           href="https://reactjs.org"
           target="_blank"
           rel="noopener noreferrer"
@@ -29,7 +29,7 @@ function Home() {
           Learn React
         </a>
         <a
-          className="text-blue-500 transition-colors hover:text-blue-700"
+          className="transition-colors hover:text-blue-700"
           href="https://tanstack.com"
           target="_blank"
           rel="noopener noreferrer"
@@ -46,7 +46,7 @@ function Home() {
         </ul>
         <Link
           to="/todos"
-          className="mt-4 rounded-2xl bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+          className="mt-4 rounded-2xl bg-primary px-4 py-2 text-secondary transition-colors hover:bg-blue-600"
         >
           Go to Todos
         </Link>
