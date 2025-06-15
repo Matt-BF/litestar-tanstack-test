@@ -1,9 +1,10 @@
-from litestar import Litestar, get, post
+from litestar import Litestar, get, post, delete
 from litestar.config.cors import CORSConfig
 import os
 from dotenv import load_dotenv
 import uvicorn
 from dataclasses import dataclass
+import litestar
 
 load_dotenv()
 
@@ -53,6 +54,12 @@ async def add_todo(data: Todo) -> list[Todo]:
     return TODO_LIST
 
 
+@delete("/api/todos/{todo_id:int}")
+async def delete_todo(todo_id: int) -> None:
+    global TODO_LIST
+    TODO_LIST = [todo for todo in TODO_LIST if todo.id != todo_id]
+
+
 cors_config = CORSConfig(
     allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:5173").split(","),
     allow_credentials=True,
@@ -61,7 +68,7 @@ cors_config = CORSConfig(
 )
 
 app = Litestar(
-    route_handlers=[health_check, get_users, get_todos, add_todo],
+    route_handlers=[health_check, get_users, get_todos, add_todo, delete_todo],
     cors_config=cors_config,
 )
 

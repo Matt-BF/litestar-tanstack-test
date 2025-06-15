@@ -1,15 +1,18 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as v from "valibot";
+import { $api } from "../main";
+import type { components } from "@/lib/api/v1.d.ts";
+
+type Todo = components["schemas"]["Todo"];
 
 export const Route = createFileRoute({
   component: Todos,
   loader: async () => {
     const res = await fetch("/api/todos");
     if (!res.ok) throw new Error("Network response was not ok");
-    return res.json() as Promise<
-      { id: number; title: string; done: boolean }[]
-    >;
+    return res.json() as Promise<Todo[]>;
   },
   errorComponent: ({ error }) => (
     <div>
@@ -23,37 +26,30 @@ function Todos() {
   const queryClient = useQueryClient();
   const [newTodo, setNewTodo] = useState("");
 
-  const addTodoMutation = useMutation({
-    mutationFn: async (todo: string) => {
-      const res = await fetch("/api/todos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: Date.now(), title: todo, done: false }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP error! status: ${res.status}, body: ${text}`);
-      }
-
-      return res.json();
-    },
+  // Use the generated mutation hook directly
+  const addTodoMutation = $api.useMutation("post", "/api/todos", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      // Invalidate the 'todos' query to refetch the list
+      queryClient.invalidateQueries({ queryKey: ["get", "/api/todos"] });
       setNewTodo(""); // Clear input after successful mutation
     },
-  });
-
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["todos"],
-    queryFn: async () => {
-      const res = await fetch("/api/todos");
-      if (!res.ok) throw new Error("Network response was not ok");
-      return res.json();
+    onError: (error) => {
+      console.error("Error adding todo:", error);
     },
   });
+
+  const { data, error, isLoading } = $api.useQuery("get", "/api/todos");
+
+  const deleteTodoMutation = $api.useMutation(
+    "delete",
+    "/api/todos/{todo_id}",
+    {
+      onSuccess: () => {
+        // Invalidate the 'todos' query to refetch the list
+        queryClient.invalidateQueries({ queryKey: ["get", "/api/todos"] });
+      },
+    },
+  );
 
   return (
     <div>
@@ -64,9 +60,20 @@ function Todos() {
       {error && <p>Error loading todos: {(error as Error).message}</p>}
       {data && (
         <ul>
-          {data.map((todo: { id: number; title: string; done: boolean }) => (
+          {data.map((todo: Todo) => (
             <li key={todo.id}>
               {todo.title} {todo.done ? "(done)" : "(pending)"}
+              <button
+                onClick={() =>
+                  deleteTodoMutation.mutate({
+                    params: { path: { todo_id: todo.id } },
+                  })
+                }
+                disabled={deleteTodoMutation.isPending}
+                className="ml-2 text-red-500"
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
@@ -80,7 +87,11 @@ function Todos() {
           placeholder="Enter todo"
         />
         <button
-          onClick={() => addTodoMutation.mutate(newTodo)}
+          onClick={() =>
+            addTodoMutation.mutate({
+              body: { id: Date.now(), title: newTodo, done: false },
+            })
+          }
           disabled={addTodoMutation.isPending || newTodo.trim() === ""}
         >
           {addTodoMutation.isPending ? "Sending..." : "Send Todo"}
@@ -92,13 +103,11 @@ function Todos() {
       {addTodoMutation.isPending && <p>Sending todo...</p>}
       {addTodoMutation.isError && (
         <p style={{ color: "red" }}>
-          Error sending todo: {addTodoMutation.error.message}
+          Error sending todo: {addTodoMutation.error.detail}
         </p>
       )}
       {addTodoMutation.isSuccess && addTodoMutation.data && (
-        <p style={{ color: "green" }}>
-          Todo sent! Received: "{addTodoMutation.data.received}" Status:{" "}
-        </p>
+        <p style={{ color: "green" }}>Todo sent! Received</p>
       )}
       {/* End mutation state feedback */}
 
