@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 import uvicorn
 from dataclasses import dataclass
-import litestar
+
 
 load_dotenv()
 
@@ -67,7 +67,7 @@ cors_config = CORSConfig(
     allow_headers=["*"],
 )
 
-app = Litestar(
+app: Litestar = Litestar(
     route_handlers=[health_check, get_users, get_todos, add_todo, delete_todo],
     cors_config=cors_config,
 )
